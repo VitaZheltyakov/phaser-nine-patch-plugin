@@ -15,28 +15,25 @@ You can also define an optional drawable section of the image (effectively, the 
 
 Add to your index.html link to plugin file:
 
-```html
 <script src="js/phaser-nine-patch-plugin.js" type="text/javascript"></script>
-```
 
 ### How to use a plugin
 
 First, create an image according to the standard described above. Then you can create an nine-patch image as follows:
 
-```
 game.add.ninePatchImage(x, y, width, height, key);
-```
+
 or
-```
+
 new Phaser.NinePatchImage(x, y, width, height, key);
-```
+
 This object behaves like an image, but may contain information about the padding box. For information about the content area can be obtained by contacting the property "paddingBox" (for example: image.paddingBox.x).
 
 
 ### Note
 
-* The plugin works only with images. It does not work with atlases, bitmaps or cache.
-* On mobile devices with specific anti-aliasing settings may be a problem with the original image reading. This  is not a problem of plugin or Phiser, is the problem of mobile browsers.
+#1 - The plugin works only with images. It does not work with atlases, bitmaps or cache.
+#2 - On mobile devices with specific anti-aliasing settings may be a problem with the original image reading. This  is not a problem of plugin or Phiser, is the problem of mobile browsers.
 
 ### License
 
