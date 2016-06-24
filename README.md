@@ -21,14 +21,14 @@ Add to your index.html link to plugin file:
 
 First, create an image according to the standard described above. Then you can create an nine-patch image as follows:
 ```
-game.add.ninePatchImage(x, y, width, height, key);
+game.add.ninePatchImage(x, y, width, height, key, keyInCache);
 ```
 or
 ```
-new Phaser.NinePatchImage(x, y, width, height, key);
+new Phaser.NinePatchImage(x, y, width, height, key, keyInCache);
 ```
+The keyInCache argument is optional. It shows the key under which the image is stored in PIXI.TextureCache (non Phaser.Cache). If the argument is not specified, the image is stored in the cache under the name 'key-width-height'.
 This object behaves like an image, but may contain information about the padding box. For information about the content area can be obtained by contacting the property "paddingBox" (for example: image.paddingBox.x).
-
 
 ### Note
 
@@ -41,4 +41,4 @@ Phaser Nine Patch Image plugin is released under the [MIT License](http://openso
 
 ### Examples
 
-The repository has 3 examples of using the plugin.
+The repository has 4 examples of using the plugin.

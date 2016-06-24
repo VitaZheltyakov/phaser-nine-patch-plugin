@@ -2,13 +2,14 @@
 (function(window, Phaser) {
 	'use strict';
 
-	Phaser.NinePatchImage = function(game, x, y, width, height, key) {
+	Phaser.NinePatchImage = function(game, x, y, width, height, key, keyInCache) {
 
 		x = x || 0;
 		y = y || 0;
 		width = width || 0;
 		height = height || 0;
 		key = key || null;
+		keyInCache = keyInCache || null;
 		if ((width == 0) || (height == 0) || (key === null)) return game.add.image(x, y, PIXI.TextureCache['__missing']);
 
 		// Так как существует проблема принудительного сглаживания на мобильных устройствах, вводим специальный параметр, указывающий какое значение альфа-канала считать 100%
@@ -124,7 +125,23 @@
 			}
 		}
 
-		Phaser.Image.call(this, game, x, y, bmd);
+		// Сохраняем изображение в кэш и из него создаем изображение
+		if (keyInCache === null) keyInCache = key + '-' + width + '-' + height;
+		// Так как существует баг generateTexture при первой генерации, нам необходимо работать напрямую с PIXI
+		// Получаем PIXI.Texture из bitmapData
+		var copyCanvas = PIXI.CanvasPool.create(this, bmd.width, bmd.height);
+		var copyContext = copyCanvas.getContext('2d', { alpha: true });
+		copyContext.putImageData(bmd.ctx.getImageData(0, 0, bmd.width, bmd.height), 0, 0);
+		var texture = PIXI.Texture.fromCanvas(copyCanvas);
+
+		// Помещаем полученную текстуру в PIXI.TextureCache
+		PIXI.Texture.addTextureToCache(texture, keyInCache);
+
+		Phaser.Image.call(this, game, x, y, texture);
+
+		// Обязательно уничтожаем битмапы, т.к. они сами не уничтожаются
+		buf.destroy();
+		bmd.destroy();
 
 		// Определяем область контента
 		this.paddingBox = {
@@ -175,9 +192,9 @@
 	Phaser.NinePatchImage.prototype.constructor = Phaser.NinePatchImage;
 
 	// Добавляем возможность создавать через метод add
-	Phaser.GameObjectFactory.prototype.ninePatchImage = function (x, y, width, height, key, group) {
+	Phaser.GameObjectFactory.prototype.ninePatchImage = function (x, y, width, height, key, keyInCache, group) {
 		if (group === undefined) { group = this.world; }
-		return group.add(new Phaser.NinePatchImage(this.game, x, y, width, height, key));
+		return group.add(new Phaser.NinePatchImage(this.game, x, y, width, height, key, keyInCache));
 	};
 
 	// Обращение к свойству paddingBox с учетом масштабирования

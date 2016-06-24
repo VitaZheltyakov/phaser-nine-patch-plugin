@@ -2,13 +2,14 @@
 (function(window, Phaser) {
 	'use strict';
 
-	Phaser.NinePatchImage = function(game, x, y, width, height, key) {
+	Phaser.NinePatchImage = function(game, x, y, width, height, key, keyInCache) {
 
 		x = x || 0;
 		y = y || 0;
 		width = width || 0;
 		height = height || 0;
 		key = key || null;
+		keyInCache = keyInCache || null;
 		if ((width == 0) || (height == 0) || (key === null)) return game.add.image(x, y, PIXI.TextureCache['__missing']);
 
 		// Because there is a problem of forced smoothing on mobile devices, introduce a special setting, indicating how the alpha channel count 100%
@@ -124,7 +125,23 @@
 			}
 		}
 
-		Phaser.Image.call(this, game, x, y, bmd);
+		// Save the image in the cache and create an image of it
+		if (keyInCache === null) keyInCache = key + '-' + width + '-' + height;
+		// Since there is a problem with generateTexture at the first generation, we need to work directly with the PIXI
+		// Get PIXI.Texture of bitmapData
+		var copyCanvas = PIXI.CanvasPool.create(this, bmd.width, bmd.height);
+		var copyContext = copyCanvas.getContext('2d', { alpha: true });
+		copyContext.putImageData(bmd.ctx.getImageData(0, 0, bmd.width, bmd.height), 0, 0);
+		var texture = PIXI.Texture.fromCanvas(copyCanvas);
+
+		// We put the resulting texture in PIXI.Texture Cache
+		PIXI.Texture.addTextureToCache(texture, keyInCache);
+
+		Phaser.Image.call(this, game, x, y, texture);
+
+		// Be sure to destroy the bitmaps, because they are not auto destroyed
+		buf.destroy();
+		bmd.destroy();
 
 		// Determine the content area
 		this.paddingBox = {
@@ -175,9 +192,9 @@
 	Phaser.NinePatchImage.prototype.constructor = Phaser.NinePatchImage;
 
 	// Add the ability to create through the add method
-	Phaser.GameObjectFactory.prototype.ninePatchImage = function (x, y, width, height, key, group) {
+	Phaser.GameObjectFactory.prototype.ninePatchImage = function (x, y, width, height, key, keyInCache, group) {
 		if (group === undefined) { group = this.world; }
-		return group.add(new Phaser.NinePatchImage(this.game, x, y, width, height, key));
+		return group.add(new Phaser.NinePatchImage(this.game, x, y, width, height, key, keyInCache));
 	};
 
 	// Address to property paddingBox considering scaling
