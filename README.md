@@ -28,6 +28,7 @@ or
 new Phaser.NinePatchImage(x, y, width, height, key, keyInCache);
 ```
 The keyInCache argument is optional. It shows the key under which the image is stored in PIXI.TextureCache (non Phaser.Cache). If the argument is not specified, the image is stored in the cache under the name 'key-width-height'.
+
 This object behaves like an image, but may contain information about the padding box. For information about the content area can be obtained by contacting the property "paddingBox" (for example: image.paddingBox.x).
 
 ### Note
